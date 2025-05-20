@@ -431,9 +431,9 @@ wait(uint64 addr)
         if(pp->state == ZOMBIE){
           // Found one.
           pid = pp->pid;
-          int turnaround = pp->end_time - pp->creation_time;
-          int waiting = pp->waiting_time;
-          printf("PID %d: Turnaround=%d, Waiting=%d\n", pid, turnaround, waiting);
+          // int turnaround = pp->end_time - pp->creation_time;
+          // int waiting = pp->waiting_time;
+          // printf("PID %d: Turnaround=%d, Waiting=%d\n", pid, turnaround, waiting); // Remove or comment this line
           if(addr != 0 && copyout(p->pagetable, addr, (char *)&pp->xstate,
                                   sizeof(pp->xstate)) < 0) {
             release(&pp->lock);
