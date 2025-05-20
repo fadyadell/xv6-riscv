@@ -27,7 +27,7 @@ int sleep(int);
 int uptime(void);
 int countsyscall(void);
 int getptable(int nproc, struct pstat *ps);
-int datetime(struct rtcdate *r);
+int datetime(struct rtcdate*);
 int sysrand(void);
 int sched_fcfs(void);
 int sched_priority(void);

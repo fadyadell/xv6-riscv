@@ -5,7 +5,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
-
+#include "syscall.h"
 #include "date.h"
 
 // enum sched_policy { SCHED_RR, SCHED_FCFS, SCHED_PRIORITY };
@@ -124,30 +124,20 @@ sys_getptable(void)
     return getptable(nproc, (struct pstat*)buf);
 }
 uint64
-sys_datetime(void)
-{
-    uint64 addr;
+sys_datetime(void) {
+    uint64 user_addr;
     struct rtcdate r;
 
-    // Fetch the user-space address of the rtcdate structure
-    argaddr(0, &addr);
+    // Get the user pointer from the first argument
+    argaddr(0, &user_addr);
 
-    // Read the mtime register (machine time in clock ticks)
-    uint64 mtime = r_time();////////////////////////////////////////
+    // Fill the rtcdate struct with the current time
+    cmostime(&r);
 
-    // Convert mtime to seconds since BOOT_EPOCH
-    uint64 seconds_since_boot = mtime / 10000000; // Assuming 10 MHz clock
-    #ifndef BOOT_EPOCH
-    #define BOOT_EPOCH 1620000000  // Default epoch (May 2021)
-    #endif
-    uint64 unix_time = BOOT_EPOCH + seconds_since_boot;
-
-    // Convert UNIX timestamp to rtcdate
-    unix_to_rtc(unix_time, &r);
-
-    // Copy the rtcdate structure to user space
-    if (copyout(myproc()->pagetable, addr, (char *)&r, sizeof(r)) < 0)
+    // Copy the struct to user space
+    if (copyout(myproc()->pagetable, user_addr, (char *)&r, sizeof(r)) < 0)
         return -1;
+
     return 0;
 }
 static uint64 rand_seed = 0;

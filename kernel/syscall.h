@@ -26,7 +26,7 @@
 #define SYS_getptable 25
 #define SYS_datetime  26
 #define SYS_sysrand      27
-#define SYS_sched_fcfs     24
-#define SYS_sched_priority 25
-#define SYS_sched_rr       26
-#define SYS_set_priority 27
+#define SYS_sched_fcfs     28
+#define SYS_sched_priority 29
+#define SYS_sched_rr       30
+#define SYS_set_priority 31
