@@ -431,9 +431,9 @@ wait(uint64 addr)
         if(pp->state == ZOMBIE){
           // Found one.
           pid = pp->pid;
-          // int turnaround = pp->end_time - pp->creation_time;
-          // int waiting = pp->waiting_time;
-          // printf("PID %d: Turnaround=%d, Waiting=%d\n", pid, turnaround, waiting); // Remove or comment this line
+          int turnaround = pp->end_time - pp->creation_time;
+          int waiting = pp->waiting_time;
+          printf("PID %d: Turnaround=%d, Waiting=%d\n", pid, turnaround, waiting); // Remove or comment this line
           if(addr != 0 && copyout(p->pagetable, addr, (char *)&pp->xstate,
                                   sizeof(pp->xstate)) < 0) {
             release(&pp->lock);
@@ -468,16 +468,9 @@ wait(uint64 addr)
 //  - eventually that process transfers control
 //    via swtch back to the scheduler.
 int sched_mode = SCHED_ROUND_ROBIN; // Default
-
 struct proc *choose_next_process() {
   struct proc *p, *chosen = 0;
-
-  if(sched_mode == SCHED_ROUND_ROBIN) {
-    for(p = proc; p < &proc[NPROC]; p++) {
-      if (p->state == RUNNABLE)
-        return p;
-    }
-  } else if (sched_mode == SCHED_FCFS) {
+  if(sched_mode == SCHED_FCFS) {
     uint min_time = (uint)-1;
     for(p = proc; p < &proc[NPROC]; p++) {
       if (p->state == RUNNABLE && p->creation_time < min_time) {
@@ -486,7 +479,8 @@ struct proc *choose_next_process() {
       }
     }
     return chosen;
-  } else if (sched_mode == SCHED_PRIORITY) {
+  }
+  else if (sched_mode == SCHED_PRIORITY) {
     int min_priority = 1<<30;
     for(p = proc; p < &proc[NPROC]; p++) {
       if (p->state == RUNNABLE && p->priority < min_priority) {
@@ -496,9 +490,13 @@ struct proc *choose_next_process() {
     }
     return chosen;
   }
+  // Default: round robin
+  for(p = proc; p < &proc[NPROC]; p++) {
+    if (p->state == RUNNABLE)
+      return p;
+  }
   return 0;
 }
-
 void
 scheduler(void)
 {
@@ -787,11 +785,6 @@ void
 update_time()
 {
   struct proc* p;
-  // Debug: print ticks value occasionally
-  static int last_ticks = 0;
-  if (ticks != last_ticks) {
-    last_ticks = ticks;
-  }
   for (p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if (p->state == RUNNING) {

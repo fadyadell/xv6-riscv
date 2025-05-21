@@ -99,14 +99,6 @@ struct proc {
   int xstate;                  // Exit status to be returned to parent's wait
   int pid;                     // Process ID
 
-  // wait_lock must be held when using this:
-  struct proc *parent;         // Parent process
-  uint creation_time;   // Already present
-  uint run_time;        // Already present
-  uint end_time;        // Add this if not present
-  uint waiting_time;    // Add this for metrics
-  int priority;         // Add this for priority scheduling
-  // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Virtual address of kernel stack
   uint64 sz;                   // Size of process memory (bytes)
   pagetable_t pagetable;       // User page table
@@ -115,4 +107,13 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+};
+struct proc {
+  ...
+  uint creation_time;   // When the process was created
+  uint end_time;        // When the process exited
+  uint run_time;        // Total time spent running on CPU
+  uint waiting_time;    // Total time spent in RUNNABLE state
+  int priority;         // For priority scheduling
+  ...
 };
