@@ -766,6 +766,14 @@ getptable(int nproc, struct pstat *ps)
                 default:       safestrcpy(local_ps[i].state, "UNKNOWN",  sizeof(local_ps[i].state)); break;
             }
 
+// UNUSED: Process slot is available
+// USED: Process slot is allocated
+// SLEEPING: Process is waiting for an event
+// RUNNABLE: Process is ready to run
+// RUNNING: Process is currently executing
+// ZOMBIE: Process has exited but parent hasn't waited for it
+
+
             safestrcpy(local_ps[i].name, p->name, sizeof(local_ps[i].name));
             local_ps[i].sz = p->sz;
             i++;
